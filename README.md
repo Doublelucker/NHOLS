@@ -61,7 +61,7 @@ Some are loaded via the package, the rest is in the **data** folder.
 
 Available:
 
-> datasets are from [UCI](https://archive.ics.uci.edu/ml/datasets.php) website (the `Julia` package loads them)
+> datasets from [UCI](https://archive.ics.uci.edu/ml/datasets.php) website (the `Julia` package loads them)
 
 > fb100 folder with two datasets: Caltech36 and Rice31
 
