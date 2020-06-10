@@ -1,0 +1,63 @@
+
+mode: LS
+
+HOLS:
+  α:
+    - .1
+    - .2
+    - 5
+  β:
+    - .1
+  ε: 1e-6
+  kn: 15
+  noise: 0
+  tolerance: 1e-5
+  dataset: iris
+  distance: cosine_angle
+  binary: true
+  balanced: false
+  data_type: points
+  percentage_of_known_labels:
+    - .1
+  num_trials: 5
+  mixing_functions: f1, f2, f4, f3, f_max
+
+
+LS:
+  α:
+    - .1
+  ε: 1e-6
+  kn: 15
+  noise: 0
+  tolerance: 1e-5
+  dataset: iris
+  binary: false
+  balanced: true
+  data_type: points
+  percentage_of_known_labels:
+    - .1
+    - .4
+    - 5
+  num_trials: 5
+
+
+both:
+  α:
+    - .1
+    - .2
+    - 5
+  β:
+    - .1
+  ε: 1e-6
+  kn: 15
+  noise: 0
+  tolerance: 1e-5
+  dataset: iris
+  distance: cosine_angle
+  binary: false
+  balanced: false
+  data_type: points
+  percentage_of_known_labels:
+    - .1
+  num_trials: 5
+  mixing_functions: f1, f2, f4, f3, f_max

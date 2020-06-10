@@ -1,0 +1,21 @@
+HOLS:
+  grid:
+    α:
+      - 0.1
+      - 0.6
+      - 10
+    β:
+      - 0.3
+      - 0.7
+      - 15
+  dataset: iris
+  distance: cosine_angle
+
+LS:
+  grid:
+    α:
+      - 0.1
+      - 0.6
+      - 10
+
+  dataset: iris
