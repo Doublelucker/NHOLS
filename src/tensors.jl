@@ -330,7 +330,7 @@ function triangle_tensor(A::SparseArrays.SparseMatrixCSC{Float64,Int64}; weight_
 end
 
 function compute(features, kn, noise, weight_function, mode, binary, data_type)
-    if data_type == "adj"
+    if data_type == "matrix"
         if mode == "LS"
             return compute_matrix_binary(features; noise=noise)
         else
@@ -367,17 +367,6 @@ function load_data(dataset_name, kn, noise, weight_function, mode, binary; data_
     end
     ##################################
 
-   #### Matlab datasets ###################
-   mat_dataset_names = ["3sources","BBC4view_685","BBCSport2view_544","cora","UCI_mfeat", "citeseer", "WikipediaArticles"]
-   if dataset_name in mat_dataset_names
-       data = MAT.matread("./data/matlab_multilayer_data/"*dataset_name*"/knn_10.mat")
-       y = data["labels"][:]
-       adj_matrix= data["W_cell"][1]
-       return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "adj")...
-   else
-      println("$dataset_name is not a part of our matlab multilayer data.")
-   end
-   ##################################
 
    #### Pendigits ###################
    if dataset_name == "pendigits"
@@ -385,7 +374,7 @@ function load_data(dataset_name, kn, noise, weight_function, mode, binary; data_
         X = train[:,1:end-1]
         adj_matrix = distance_matrix(X, kn, mode="connectivity")
         y = train[:,end] .+ 1
-        return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "adj")...
+        return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "matrix")...
    ##################################
 
    #### Optdigits ###################
@@ -394,17 +383,19 @@ function load_data(dataset_name, kn, noise, weight_function, mode, binary; data_
        X = train[:,1:end-1]
        adj_matrix = distance_matrix(X, kn, mode="connectivity")
        y = train[:,end] .+ 1
-       return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "adj")...
+       return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "matrix")...
    ##################################
 
 
    #### F-MNIST #####################
    elseif dataset_name == "f-mnist"
-       train = Array(CSV.read("./data/fashion-mnist_train.csv"))
-       X = train[:,2:end]
+       train_x, train_y = FashionMNIST.traindata()
+       rows, cols, num = size(train_x)
+       X = reshape(train_x, (rows*cols, num))'
+       X = convert(Array{Float64,2}, X)
        adj_matrix = distance_matrix(X, kn, mode="connectivity")
-       y = train[:,end] .+ 1
-       return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "adj")...
+       y = train_y
+       return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "matrix")...
 
    #### MNIST #######################
    elseif dataset_name == "mnist"
@@ -414,10 +405,18 @@ function load_data(dataset_name, kn, noise, weight_function, mode, binary; data_
        X = convert(Array{Float64,2}, X)
        adj_matrix = distance_matrix(X, kn, mode="connectivity")
        y = train_y
-       return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "adj")...
+       return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "matrix")...
    ##################################
    else
        println("$dataset_name is not one of the digits datasets.")
+   end
+
+
+   if dataset_name in ["Caltech36", "Rice31"]
+      adj_matrix, y = read_hols_datasets(dataset_name)
+      return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "matrix")...
+   else
+      println("$dataset_name is not one of the fb100 datasets.")
    end
 
    if dataset_name in readdir("data/custom/")
@@ -430,11 +429,6 @@ function load_data(dataset_name, kn, noise, weight_function, mode, binary; data_
                X = data[:,1:end-1]
                y = data[:,end] .+ 1
                return X, y, compute(X, kn, noise, weight_function, mode, binary, "points")...
-           elseif endswith(data_file, ".mat")
-               data = MAT.matread("./data/custom/$dataset_name/$data_file")
-               y = data["labels"][:]
-               adj_matrix= data["W_cell"][1]
-               return adj_matrix, y, compute(adj_matrix, kn, noise, weight_function, mode, binary, "adj")...
            elseif endswith(data_file, r".xls[x]?")
                data = convert(Array, DataFrame(load("./data/custom/$dataset_name/$data_file", split(data_file, '.')[1])))
                X = data[:,1:end-1]

@@ -1,5 +1,5 @@
 
-using UCIData, Random, LinearAlgebra, SparseArrays, Distances, DataFrames, CSV, LightGraphs, MAT, Statistics, PyCall
+using UCIData, DelimitedFiles, Random, LinearAlgebra, SparseArrays, Distances, DataFrames, CSV, LightGraphs, MAT, Statistics, PyCall
 
 @pyimport numpy as np
 
@@ -161,4 +161,14 @@ function prepare_config_data(data)
    end
 
    return balanced, binary, alphas, betas, distance, mixing_functions, ε, kn, noise, percentage_of_known_labels, num_trials, dataset_name, data_type
+end
+
+function read_hols_datasets(folder, dataset)
+    IJ = readdlm("./data/$folder/edges-$dataset.txt")
+    Y = readdlm("./data/$folder/labels-$dataset.txt")
+    n = length(Y)
+    A = sparse(IJ[:,1], IJ[:,2], 1, n, n)
+    A = max.(A, A')
+    A = min.(A, 1)
+    return A, convert(Vector{Int64}, vec(Y))
 end
